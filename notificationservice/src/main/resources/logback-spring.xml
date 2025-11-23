@@ -1,0 +1,15 @@
+<configuration>
+
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <provider class="net.logstash.logback.composite.loggingevent.LoggingEventFormattedTimestampJsonProvider">
+                <timeZone>UTC</timeZone>
+            </provider>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="JSON"/>
+    </root>
+
+</configuration>

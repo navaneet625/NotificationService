@@ -21,4 +21,17 @@ redis:
   host: localhost
   port: 6379
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  metrics:
+    enable:
+      all: true
+  endpoint:
+    prometheus:
+      enabled: true
+
+
 
