@@ -40,7 +40,7 @@ public class NotificationController {
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) {
         try {
             String url = s3Service.uploadFile(file);
             return ResponseEntity.ok(url);
