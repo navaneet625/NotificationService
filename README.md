@@ -1,55 +1,64 @@
 # NotificationService
 
-A distributed, cloud-native notification microservice built using Spring Boot, Kafka, Redis, and MySQL — orchestrated with Docker Compose, monitored via Actuator/Prometheus, and integrated with AWS S3 for secure asset storage.
+A distributed, cloud-native notification microservice built with **FastAPI** (Python), integrating **Kafka**, **Redis**, and **MySQL**, orchestrated with **Docker Compose**.
 
-Supports asynchronous notifications, rate-limiting, idempotency, and cloud-based object storage integration.
+## Features
 
+### Notification API
+1. **Send Notifications**: Asynchronous processing via Kafka.
+2. **Status Tracking**: Stores status in MySQL and Redis.
+3. **Idempotency**: Redis-based idempotency key support to prevent duplicate processing.
+4. **Rate Limiting**: Redis-based rate limiting (60 requests/minute).
 
-📌 Features
-✅ Notification API
+### Architecture
+- **Language**: Python 3.11 (FastAPI)
+- **Database**: MySQL 8 (Async SQLAlchemy)
+- **Broker**: Kafka (AIOKafka)
+- **Cache/KV**: Redis 7 (Async)
+- **Containerization**: Docker & Docker Compose
 
-1. Send notifications to users
+## Docker Compose Setup
 
-2. Stores status in MySQL
+### Services
+- `notification-service`: FastAPI Application (Port 8000)
+- `mysql`: Database (Port 3306)
+- `redis`: Cache & Rate Limiting (Port 6379)
+- `kafka` + `zookeeper`: Message Broker (Port 9094)
 
-3. Kafka message publishing
-
-4. Redis-based idempotency
-
-5. Redis-based rate limiting
-
-
-✅ File Upload
-
-1. Upload files to AWS S3
-
-2. Pre-signed URL support
-
-✅ Monitoring
-
-1. Spring Boot Actuator
-
-2. Prometheus endpoint /actuator/prometheus
-
-3. Health checks for Redis/MySQL/Kafka
-
-
-🐳 Docker Compose Setup
- Runs:
-    MySQL
-    Redis
-    Kafka + Zookeeper
-    Notification Service (Spring Boot)
-
-
-
+### Running the App
+```bash
 docker compose up -d --build
-docker compose ps
-curl http://<PUBLIC_IP>:8080/actuator/health
-curl -X POST "http://<PUBLIC_IP>:8080/api/notify?userId=1&msg=Hello"
-curl "http://<PUBLIC_IP>:8080/api/notify/status?id=1"
-curl -X POST "http://<PUBLIC_IP>:8080/api/notify/upload" -F "file=@/path/to/file.jpg"
+```
+
+### API Usage
+
+#### 1. Check Health
+```bash
+curl http://localhost:8000/health
+```
+
+#### 2. Send Notification
+```bash
+curl -X POST "http://localhost:8000/api/notify?userId=1&msg=Hello"
+```
+**Response**: `Queued Notification ID: <id>`
+
+#### 3. Check Status
+```bash
+curl "http://localhost:8000/api/notify/status?id=<id>"
+```
+
+#### 4. Test Rate Limiting
+```bash
 for i in {1..70}; do 
-  curl -X POST "http://<PUBLIC_IP>:8080/api/notify?userId=1&msg=Test-$i"; 
+  curl -X POST "http://localhost:8000/api/notify?userId=1&msg=Test-$i"; 
   echo; 
 done
+```
+
+#### 5. Test Idempotency
+```bash
+curl -X POST "http://localhost:8000/api/notify?userId=1&msg=Repeat" -H "Idempotency-Key: test-key-1"
+```
+Repeating the above command should return a duplicate request error.
+
